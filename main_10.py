@@ -49,8 +49,9 @@ import console
  Create console
 """
 console_obj = "HBNBCommand"
+console_name = "HBNBCommand"
 for name, obj in inspect.getmembers(console):
-    if inspect.isclass(obj) and issubclass(obj, cmd.Cmd):
+    if inspect.isclass(obj) and issubclass(obj, cmd.Cmd) and name == console_name:
         console_obj = obj
 
 my_console = console_obj(stdout=io.StringIO(), stdin=io.StringIO())
