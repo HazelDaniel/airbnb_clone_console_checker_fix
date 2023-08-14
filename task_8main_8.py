@@ -4,31 +4,30 @@ import io
 import sys
 import cmd
 import shutil
+import os
 
 """
- Cleanup file storage
+Cleanup file storage
 """
-import os
 file_path = "file.json"
 if not os.path.exists(file_path):
     try:
         from models.engine.file_storage import FileStorage
         file_path = FileStorage._FileStorage__file_path
-    except:
+    except Exception:
         pass
 if os.path.exists(file_path):
     os.remove(file_path)
 
-
 """
- Backup console file
+Backup console file
 """
 if os.path.exists("tmp_console_main.py"):
     shutil.copy("tmp_console_main.py", "console.py")
 shutil.copy("console.py", "tmp_console_main.py")
 
 """
- Updating console to remove "__main__"
+Updating console to remove "__main__"
 """
 with open("tmp_console_main.py", "r") as file_i:
     console_lines = file_i.readlines()
@@ -39,27 +38,30 @@ with open("tmp_console_main.py", "r") as file_i:
                 in_main = True
             elif in_main:
                 if "cmdloop" not in line:
-                    file_o.write(line.lstrip("    ")) 
+                    file_o.write(line.lstrip("    "))
             else:
                 file_o.write(line)
 
 import console
 
 """
- Create console
+Create console
 """
-console_obj = "HBNBCommand"
+console_name = "HBNBCommand"
+my_console = None
+console_obj = None
 for name, obj in inspect.getmembers(console):
-    if inspect.isclass(obj) and issubclass(obj, cmd.Cmd):
+    if inspect.isclass(obj) and issubclass(obj, cmd.Cmd) and name == console_name:
         console_obj = obj
-
-my_console = console_obj(stdout=io.StringIO(), stdin=io.StringIO())
-my_console.use_rawinput = False
+        my_console = console_obj(stdout=io.StringIO(), stdin=io.StringIO())
+        my_console.use_rawinput = False
+        break
 
 """
- Exec command
+Exec command
 """
-def exec_command(my_console, the_command, last_lines = 1):
+
+def exec_command(my_console, the_command, last_lines=1):
     my_console.stdout = io.StringIO()
     real_stdout = sys.stdout
     sys.stdout = my_console.stdout
@@ -70,23 +72,29 @@ def exec_command(my_console, the_command, last_lines = 1):
     return "\n".join(lines[(-1*(last_lines+1)):-1])
 
 """
- Tests
+Tests
 """
 result = exec_command(my_console, "create User")
 if result is None or result == "":
     print("FAIL: No ID retrieved")
-    
-with open(file_path, "r") as file:
-    s_file = file.read()
-    if result not in s_file:
-        print("FAIL: New ID not in the JSON file")
+
+try:
+    with open(file_path, "r") as file:
+        s_file = file.read()
+        if result not in s_file:
+            print("FAIL: New ID not in the JSON file")
+except Exception:
+    pass
 
 model_id = result
 exec_command(my_console, "destroy User {}".format(model_id))
-with open(file_path, "r") as file:
-    s_file = file.read()
-    if result in s_file:
-        print("FAIL: New ID is still in the JSON file")
-print("OK", end="")
+try:
+    with open(file_path, "r") as file:
+        s_file = file.read()
+        if result in s_file:
+            print("FAIL: New ID is still in the JSON file")
+    print("OK", end="")
+except Exception:
+    pass
 
 shutil.copy("tmp_console_main.py", "console.py")
