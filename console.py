@@ -104,6 +104,4 @@ class HBNBCommand(CompletionClass):
         pass
 
 
-if __name__ == "__main__":
-    HBNB_cmd = HBNBCommand()
-    HBNB_cmd.cmdloop()
+HBNB_cmd = HBNBCommand()
