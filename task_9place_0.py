@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Doc
 """
+#unresolved: why would there be models.tmp_place if none was created?
 from models.tmp_place import *
 from models.tmp_place import Place
 
